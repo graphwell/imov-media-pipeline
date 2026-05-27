@@ -1,0 +1,475 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector"), uuidOssp(map: "uuid-ossp"), pgTrgm(map: "pg_trgm")]
+}
+
+// ─── Organizações ────────────────────────────────────────────────────────────
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logo      String?
+  settings  Json     @default("{}")
+  plan      Plan     @default(FREE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users           User[]
+  empreendimentos Empreendimento[]
+  importacoes     Importacao[]
+}
+
+// ─── Usuários ────────────────────────────────────────────────────────────────
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  name           String
+  passwordHash   String?
+  role           Role         @default(EDITOR)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  refreshTokens  RefreshToken[]
+  auditLogs      AuditLog[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// ─── Empreendimentos ─────────────────────────────────────────────────────────
+
+model Empreendimento {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  nome        String
+  slug        String   @unique
+  construtora String?
+  status      StatusEmpreendimento @default(RASCUNHO)
+
+  bairro    String?
+  cidade    String?
+  estado    String?
+  cep       String?
+  endereco  String?
+  latitude  Float?
+  longitude Float?
+
+  tipoImovel String?
+  metragem   Json?
+  quartos    Json?
+  banheiros  Json?
+  vagas      Json?
+  andares    Int?
+  unidades   Int?
+
+  precoMin     Float?
+  precoMax     Float?
+  entrega      DateTime?
+  diferenciais String[]
+  descricao    String?  @db.Text
+  descricaoIA  String?  @db.Text
+
+  seoTitle       String?
+  seoDescription String?
+  tags           String[]
+
+  medias     Media[]
+  galerias   Galeria[]
+  documentos DocumentoEmpreendimento[]
+  importacoes Importacao[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([cidade, bairro])
+}
+
+// ─── Importações ─────────────────────────────────────────────────────────────
+
+model Importacao {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  empreendimentoId String?
+  empreendimento   Empreendimento? @relation(fields: [empreendimentoId], references: [id])
+
+  sourceType   SourceType
+  sourceUrl    String?
+  sourceMeta   Json?
+
+  status       ImportStatus @default(AGUARDANDO)
+  progresso    Int          @default(0)
+  etapaAtual   String?
+  totalArquivos Int         @default(0)
+  processados  Int          @default(0)
+  erros        Int          @default(0)
+
+  resumo    Json?
+  logErros  Json[]   @default([])
+  jobIds    String[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  arquivos Arquivo[]
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+model Arquivo {
+  id           String     @id @default(cuid())
+  importacaoId String
+  importacao   Importacao @relation(fields: [importacaoId], references: [id], onDelete: Cascade)
+
+  nomeOriginal    String
+  caminhoOriginal String?
+  extensao        String
+  mimeType        String?
+  tamanho         BigInt?
+  checksum        String?
+
+  storageKey String?
+  storageUrl String?
+
+  categoria      CategoriaMedia?
+  subcategoria   String?
+  confianca      Float?
+  classificadoPor ClassificacaoMetodo?
+
+  status  StatusArquivo @default(PENDENTE)
+  mediaId String?
+  media   Media?        @relation(fields: [mediaId], references: [id])
+
+  erro String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([importacaoId])
+  @@index([status])
+  @@index([categoria])
+}
+
+// ─── Mídias Processadas ───────────────────────────────────────────────────────
+
+model Media {
+  id               String         @id @default(cuid())
+  empreendimentoId String
+  empreendimento   Empreendimento @relation(fields: [empreendimentoId], references: [id])
+
+  tipo         TipoMedia
+  categoria    CategoriaMedia
+  subcategoria String?
+  ordem        Int     @default(0)
+  destaque     Boolean @default(false)
+
+  originalKey    String
+  originalUrl    String
+  originalNome   String
+  originalTamanho BigInt?
+  originalMime   String?
+
+  largura  Int?
+  altura   Int?
+  duracao  Float?
+  fps      Float?
+
+  versoes MediaVersao[]
+
+  descricaoIA      String? @db.Text
+  altText          String?
+  tagsIA           String[]
+  embedding        Unsupported("vector(1536)")?
+  focalPoint       Json?
+  sujeitoPrincipal String?
+
+  galerias GaleriaMedia[]
+  arquivos Arquivo[]
+
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([empreendimentoId])
+  @@index([categoria])
+  @@index([tipo])
+}
+
+model MediaVersao {
+  id      String @id @default(cuid())
+  mediaId String
+  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  perfil    PerfilVersao
+  formato   String
+  largura   Int?
+  altura    Int?
+  tamanho   BigInt?
+  qualidade Int?
+  storageKey String
+  url       String
+  cdn       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([mediaId])
+  @@index([perfil])
+}
+
+// ─── Galerias ─────────────────────────────────────────────────────────────────
+
+model Galeria {
+  id               String         @id @default(cuid())
+  empreendimentoId String
+  empreendimento   Empreendimento @relation(fields: [empreendimentoId], references: [id])
+
+  nome   String
+  slug   String
+  tipo   TipoGaleria
+  ordem  Int     @default(0)
+  publica Boolean @default(true)
+  capa   String?
+
+  medias GaleriaMedia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([empreendimentoId, slug])
+}
+
+model GaleriaMedia {
+  id        String  @id @default(cuid())
+  galeriaId String
+  galeria   Galeria @relation(fields: [galeriaId], references: [id], onDelete: Cascade)
+  mediaId   String
+  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  ordem     Int     @default(0)
+
+  @@unique([galeriaId, mediaId])
+  @@index([galeriaId])
+}
+
+// ─── Documentos ───────────────────────────────────────────────────────────────
+
+model DocumentoEmpreendimento {
+  id               String         @id @default(cuid())
+  empreendimentoId String
+  empreendimento   Empreendimento @relation(fields: [empreendimentoId], references: [id])
+
+  tipo      TipoDocumento
+  nome      String
+  storageKey String
+  url       String
+  tamanho   BigInt?
+  paginas   Int?
+
+  textoBruto    String? @db.Text
+  dadosExtraidos Json?
+
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// ─── Jobs e Monitoramento ─────────────────────────────────────────────────────
+
+model JobLog {
+  id        String   @id @default(cuid())
+  jobId     String
+  jobType   String
+  status    String
+  data      Json?
+  result    Json?
+  erro      String?
+  duracao   Int?
+  tentativa Int      @default(1)
+  createdAt DateTime @default(now())
+
+  @@index([jobId])
+  @@index([jobType, status])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  acao      String
+  recurso   String
+  recursoId String?
+  dados     Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([recurso, recursoId])
+  @@index([createdAt])
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Plan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum StatusEmpreendimento {
+  RASCUNHO
+  EM_REVISAO
+  PUBLICADO
+  ARQUIVADO
+}
+
+enum StatusArquivo {
+  PENDENTE
+  BAIXANDO
+  PROCESSANDO
+  CLASSIFICANDO
+  CONCLUIDO
+  ERRO
+  IGNORADO
+}
+
+enum ImportStatus {
+  AGUARDANDO
+  VERIFICANDO_FONTE
+  BAIXANDO
+  EXTRAINDO
+  CLASSIFICANDO
+  PROCESSANDO_MIDIA
+  REVISAO_MANUAL
+  CONCLUIDO
+  ERRO
+  CANCELADO
+}
+
+enum SourceType {
+  GOOGLE_DRIVE
+  DROPBOX
+  ONEDRIVE
+  WETRANSFER
+  S3_URL
+  HTTP_URL
+  ZIP_UPLOAD
+  DIRECT_UPLOAD
+  FTP
+}
+
+enum TipoMedia {
+  IMAGE
+  VIDEO
+  PDF
+  DOCUMENT
+  AUDIO
+}
+
+enum CategoriaMedia {
+  FACHADA
+  AREA_DE_LAZER
+  PISCINA
+  ACADEMIA
+  SALAO_DE_FESTAS
+  PLAYGROUND
+  PLANTA_BAIXA
+  PLANTA_HUMANIZADA
+  PLANTA_3D
+  LOGO
+  BANNER
+  POST_INSTAGRAM
+  POST_FACEBOOK
+  VIDEO_TOUR
+  VIDEO_DRONE
+  VIDEO_APRESENTACAO
+  PDF_FOLDER
+  PDF_MEMORIAL
+  TABELA_PRECO
+  DOCUMENTO_COMERCIAL
+  QUARTO
+  SALA
+  COZINHA
+  BANHEIRO
+  VARANDA
+  AREA_GOURMET
+  VISTA
+  MAPA_LOCALIZACAO
+  OBRA
+  OUTRO
+}
+
+enum ClassificacaoMetodo {
+  NOME_ARQUIVO
+  ESTRUTURA_PASTA
+  IA_VISUAL
+  OCR
+  METADATA
+  MANUAL
+  COMBINADO
+}
+
+enum PerfilVersao {
+  THUMBNAIL
+  CARD
+  BANNER
+  MOBILE
+  GALLERY
+  FULLSCREEN
+  SQUARE
+  WEBP_ORIGINAL
+  VIDEO_HLS
+  VIDEO_MP4_LQ
+  VIDEO_MP4_HQ
+  VIDEO_THUMB
+}
+
+enum TipoGaleria {
+  PRINCIPAL
+  FACHADA
+  PLANTA
+  LAZER
+  INTERIORES
+  VIDEO
+  DOCUMENTOS
+  OBRA
+}
+
+enum TipoDocumento {
+  FOLDER
+  MEMORIAL_DESCRITIVO
+  TABELA_PRECO
+  PLANTA_PDF
+  CONTRATO
+  HABITE_SE
+  OUTRO
+}

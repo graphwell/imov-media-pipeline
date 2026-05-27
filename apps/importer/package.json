@@ -1,0 +1,32 @@
+{
+  "name": "@imov/importer",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "tsx watch src/worker.ts",
+    "start": "node dist/worker.js",
+    "build": "tsc",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.2.1",
+    "bullmq": "^5.34.8",
+    "ioredis": "^5.4.2",
+    "googleapis": "^144.0.0",
+    "got": "^13.0.0",
+    "p-limit": "^6.2.0",
+    "unzipper": "^0.12.3",
+    "mime-types": "^2.1.35",
+    "winston": "^3.17.0",
+    "dotenv": "^16.4.7",
+    "crypto": "^1.0.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/unzipper": "^0.10.10",
+    "@types/mime-types": "^2.1.4",
+    "prisma": "^6.2.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
