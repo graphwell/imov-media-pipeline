@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { empreendimentosApi, mediasApi } from '@/lib/api'
+import Link from 'next/link'
 import { Globe, Loader2, CheckCircle, Image, Video, FileText } from 'lucide-react'
 
 const CATEGORIA_LABELS: Record<string, string> = {
@@ -103,7 +104,7 @@ export default function EmpreendimentoPage() {
         {filtered.map((media: any) => {
           const thumbUrl = media.versoes?.find((v: any) => v.perfil === 'THUMBNAIL')?.url || media.originalUrl
           return (
-            <div key={media.id} className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 border hover:border-blue-400">
+            <Link key={media.id} href={`/medias/${media.id}`} className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 border hover:border-blue-400">
               {media.tipo === 'IMAGE' ? (
                 <img src={thumbUrl} alt={media.altText || media.originalNome} className="w-full h-full object-cover" />
               ) : media.tipo === 'VIDEO' ? (
@@ -121,7 +122,7 @@ export default function EmpreendimentoPage() {
               {media.destaque && (
                 <div className="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full" />
               )}
-            </div>
+            </Link>
           )
         })}
       </div>
