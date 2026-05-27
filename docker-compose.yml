@@ -208,6 +208,8 @@ services:
       context: ./apps/frontend
       dockerfile: Dockerfile
       target: development
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     container_name: imov_frontend
     restart: unless-stopped
     environment:
