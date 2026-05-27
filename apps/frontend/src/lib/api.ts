@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://pipeline-api.somar.ia.br'
 
 export const api = axios.create({
   baseURL: `${BASE_URL}/api`,

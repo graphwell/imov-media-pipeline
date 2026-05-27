@@ -4,7 +4,7 @@ let socket: Socket | null = null
 
 export function getSocket(): Socket {
   if (!socket) {
-    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001'
+    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'wss://pipeline-api.somar.ia.br'
     socket = io(WS_URL, {
       autoConnect: false,
       transports: ['websocket'],
