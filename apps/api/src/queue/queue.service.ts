@@ -1,13 +1,10 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common'
 import { Queue } from 'bullmq'
-import { Redis } from 'ioredis'
 
-const redisConnection = () => new Redis({
+const redisConnection = () => ({
   host: process.env.REDIS_HOST || 'localhost',
   port: Number(process.env.REDIS_PORT) || 6379,
-  password: process.env.REDIS_PASSWORD,
-  maxRetriesPerRequest: null,
-  enableReadyCheck: false,
+  password: process.env.REDIS_PASSWORD || undefined,
 })
 
 const defaultJobOptions = {
@@ -19,7 +16,6 @@ const defaultJobOptions = {
 
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
-  private connection: Redis
   importacao: Queue
   classification: Queue
   mediaProcessing: Queue
@@ -27,8 +23,6 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   publish: Queue
 
   onModuleInit() {
-    this.connection = redisConnection()
-
     this.importacao = new Queue('importacao', {
       connection: redisConnection(),
       defaultJobOptions,
@@ -61,7 +55,6 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       this.upload?.close(),
       this.publish?.close(),
     ])
-    await this.connection?.quit()
   }
 
   async getStats() {
