@@ -32,7 +32,7 @@
     "@aws-sdk/s3-request-presigner": "^3.726.1",
     "@anthropic-ai/sdk": "^0.39.0",
     "bullmq": "^5.34.8",
-    "ioredis": "^5.4.2",
+    "ioredis": "5.3.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "bcryptjs": "^2.4.3",
