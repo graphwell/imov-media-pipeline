@@ -35,9 +35,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <nav className="flex-1 p-4 space-y-1">
           <NavLink href="/dashboard" icon={<LayoutDashboard size={18} />} label="Dashboard" />
-          <NavLink href="/dashboard/importacoes" icon={<Upload size={18} />} label="Importações" />
-          <NavLink href="/dashboard/empreendimentos" icon={<Building2 size={18} />} label="Empreendimentos" />
-          <NavLink href="/dashboard/configuracoes" icon={<Settings size={18} />} label="Configurações" />
+          <NavLink href="/importacoes" icon={<Upload size={18} />} label="Importações" />
+          <NavLink href="/empreendimentos" icon={<Building2 size={18} />} label="Empreendimentos" />
+          <NavLink href="/configuracoes" icon={<Settings size={18} />} label="Configurações" />
         </nav>
 
         <div className="p-4 border-t">

@@ -29,7 +29,7 @@ export default function ImportacaoDetalhe() {
 
   useEffect(() => {
     if (completed?.empreendimentoId) {
-      setTimeout(() => router.push(`/dashboard/empreendimentos/${completed.empreendimentoId}`), 2000)
+      setTimeout(() => router.push(`/empreendimentos/${completed.empreendimentoId}`), 2000)
     }
   }, [completed, router])
 
@@ -47,7 +47,7 @@ export default function ImportacaoDetalhe() {
 
   return (
     <div className="p-8 max-w-2xl mx-auto">
-      <Link href="/dashboard/importacoes" className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-6">
+      <Link href="/importacoes" className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-6">
         <ArrowLeft size={16} /> Voltar para importações
       </Link>
 
@@ -103,7 +103,7 @@ export default function ImportacaoDetalhe() {
           <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-800 font-medium">Importação concluída com sucesso!</p>
             <Link
-              href={`/dashboard/empreendimentos/${importacao.empreendimentoId}`}
+              href={`/empreendimentos/${importacao.empreendimentoId}`}
               className="mt-2 inline-flex items-center gap-2 text-blue-600 hover:underline text-sm"
             >
               <Building2 size={16} /> Ver empreendimento criado

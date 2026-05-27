@@ -44,7 +44,7 @@ export default function ImportacoesPage() {
           <button onClick={load} className="flex items-center gap-2 px-4 py-2 text-sm border rounded-lg hover:bg-gray-50">
             <RefreshCw size={16} /> Atualizar
           </button>
-          <Link href="/dashboard/importacoes/nova" className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <Link href="/importacoes/nova" className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
             <Plus size={16} /> Nova Importação
           </Link>
         </div>
@@ -57,7 +57,7 @@ export default function ImportacoesPage() {
       ) : importacoes.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl border border-dashed border-gray-300">
           <p className="text-gray-500">Nenhuma importação ainda.</p>
-          <Link href="/dashboard/importacoes/nova" className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:underline">
+          <Link href="/importacoes/nova" className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:underline">
             <Plus size={16} /> Criar primeira importação
           </Link>
         </div>
@@ -68,7 +68,7 @@ export default function ImportacoesPage() {
             return (
               <Link
                 key={imp.id}
-                href={`/dashboard/importacoes/${imp.id}`}
+                href={`/importacoes/${imp.id}`}
                 className="block bg-white rounded-xl border hover:border-blue-300 hover:shadow-sm p-5 transition-all"
               >
                 <div className="flex items-center justify-between">

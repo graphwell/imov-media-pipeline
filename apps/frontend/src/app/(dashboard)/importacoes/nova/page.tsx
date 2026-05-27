@@ -31,7 +31,7 @@ export default function NovaImportacaoPage() {
         sourceType: 'DIRECT_UPLOAD',
         config: { autoCreateEmpreendimento: true },
       })
-      router.push(`/dashboard/importacoes/${data.id}`)
+      router.push(`/importacoes/${data.id}`)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao criar importação')
       setLoading(false)
@@ -58,7 +58,7 @@ export default function NovaImportacaoPage() {
         sourceUrl: url.trim(),
         config: { autoCreateEmpreendimento: true, processVideos: true, processPdfs: true },
       })
-      router.push(`/dashboard/importacoes/${data.id}`)
+      router.push(`/importacoes/${data.id}`)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao criar importação')
       setLoading(false)

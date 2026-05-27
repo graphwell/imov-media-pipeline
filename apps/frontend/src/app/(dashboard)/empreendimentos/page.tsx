@@ -30,7 +30,7 @@ export default function EmpreendimentosPage() {
           <h1 className="text-2xl font-bold text-gray-900">Empreendimentos</h1>
           <p className="text-sm text-gray-500 mt-1">Todos os empreendimentos imobiliários</p>
         </div>
-        <Link href="/dashboard/importacoes/nova" className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <Link href="/importacoes/nova" className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
           <Plus size={16} /> Importar mídia
         </Link>
       </div>
@@ -43,7 +43,7 @@ export default function EmpreendimentosPage() {
         <div className="text-center py-16 bg-white rounded-xl border border-dashed">
           <Building2 size={48} className="mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500">Nenhum empreendimento ainda.</p>
-          <Link href="/dashboard/importacoes/nova" className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:underline">
+          <Link href="/importacoes/nova" className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:underline">
             <Plus size={16} /> Importar primeiro projeto
           </Link>
         </div>
@@ -73,7 +73,7 @@ export default function EmpreendimentosPage() {
                   <p className="text-xs text-gray-400">{emp._count?.medias || 0} mídias</p>
                 </div>
                 <div className="flex gap-2 mt-3">
-                  <Link href={`/dashboard/empreendimentos/${emp.id}`} className="flex-1 flex items-center justify-center gap-1 text-xs py-1.5 border rounded-lg hover:border-blue-400 hover:text-blue-600">
+                  <Link href={`/empreendimentos/${emp.id}`} className="flex-1 flex items-center justify-center gap-1 text-xs py-1.5 border rounded-lg hover:border-blue-400 hover:text-blue-600">
                     <Edit size={12} /> Editar
                   </Link>
                   {emp.status === 'PUBLICADO' && (

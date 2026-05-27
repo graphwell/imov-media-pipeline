@@ -77,9 +77,9 @@ export default function MediaDetalhe() {
     try {
       await mediasApi.remover(id as string)
       if (media?.empreendimentoId) {
-        router.push(`/dashboard/empreendimentos/${media.empreendimentoId}`)
+        router.push(`/empreendimentos/${media.empreendimentoId}`)
       } else {
-        router.push('/dashboard/empreendimentos')
+        router.push('/empreendimentos')
       }
     } catch (err) {
       console.error(err)
@@ -104,7 +104,7 @@ export default function MediaDetalhe() {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <Link
-        href={media.empreendimentoId ? `/dashboard/empreendimentos/${media.empreendimentoId}` : '/dashboard/empreendimentos'}
+        href={media.empreendimentoId ? `/empreendimentos/${media.empreendimentoId}` : '/empreendimentos'}
         className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-6"
       >
         <ArrowLeft size={16} /> Voltar ao empreendimento
