@@ -4,6 +4,7 @@ import { Redis } from 'ioredis'
 import { PrismaClient } from '@prisma/client'
 import { verifySource } from './workers/verify-source.worker'
 import { downloadFileWorker } from './workers/download.worker'
+import { classifyImport } from './workers/classify-import.worker'
 import { detectSource } from './source-detector'
 import { downloadFile, extractZip } from './handlers/http.handler'
 import { downloadDriveFiles, listDriveFiles } from './handlers/google-drive.handler'
@@ -33,6 +34,9 @@ const worker = new Worker(
 
       case 'download-file':
         return downloadFileWorker(job)
+
+      case 'classify-import':
+        return classifyImport(job)
 
       case 'download-files': {
         const { importacaoId, sourceType, sourceUrl } = job.data
