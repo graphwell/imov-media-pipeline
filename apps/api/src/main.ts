@@ -35,6 +35,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api/docs', app, document)
 
+  // Serializar BigInt como string no JSON (campos como tamanho de arquivo)
+  ;(BigInt.prototype as any).toJSON = function () { return this.toString() }
+
   const port = process.env.PORT || 3001
   await app.listen(port, '0.0.0.0')
   console.log(`IMOV API rodando em http://0.0.0.0:${port}`)
