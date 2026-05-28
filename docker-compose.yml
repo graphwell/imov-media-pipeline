@@ -93,8 +93,8 @@ services:
 
   importer:
     build:
-      context: ./apps/importer
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/importer/Dockerfile
       target: development
     container_name: imov_importer
     restart: unless-stopped

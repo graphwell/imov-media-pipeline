@@ -3,19 +3,23 @@ RUN npm install -g pnpm
 WORKDIR /app
 
 FROM base AS development
-COPY package.json ./
+COPY apps/importer/package.json ./
 RUN pnpm install
-COPY . .
+COPY apps/importer/ .
+COPY apps/api/prisma ./prisma
+RUN npx prisma generate
 CMD ["pnpm", "dev"]
 
 FROM base AS builder
-COPY package.json ./
+COPY apps/importer/package.json ./
 RUN pnpm install --frozen-lockfile
-COPY . .
+COPY apps/importer/ .
+COPY apps/api/prisma ./prisma
+RUN npx prisma generate
 RUN pnpm build
 
 FROM base AS production
-COPY package.json ./
+COPY apps/importer/package.json ./
 RUN pnpm install --prod --frozen-lockfile
 COPY --from=builder /app/dist ./dist
 CMD ["node", "dist/worker.js"]
