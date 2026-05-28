@@ -1,11 +1,15 @@
-import anthropic
+import os
 import base64
 import json
 from pathlib import Path
+from openai import OpenAI
 import structlog
 
 logger = structlog.get_logger()
-client = anthropic.Anthropic()
+client = OpenAI(
+    api_key=os.environ.get("GROK_API_KEY"),
+    base_url="https://api.x.ai/v1",
+)
 
 CATEGORIAS_PROMPT = """
 Você é um especialista em classificação de imagens de empreendimentos imobiliários.
@@ -122,33 +126,33 @@ def classify_image_with_ai(image_path: str) -> dict:
     }
     media_type = media_type_map.get(ext, 'image/jpeg')
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+    response = client.chat.completions.create(
+        model="grok-2-vision-1212",
         max_tokens=1000,
         messages=[{
             "role": "user",
             "content": [
-                {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": image_data}},
-                {"type": "text", "text": CATEGORIAS_PROMPT}
+                {"type": "image_url", "image_url": {"url": f"data:{media_type};base64,{image_data}"}},
+                {"type": "text", "text": CATEGORIAS_PROMPT},
             ],
-        }]
+        }],
     )
 
-    text = response.content[0].text.replace('```json', '').replace('```', '').strip()
+    text = response.choices[0].message.content.replace('```json', '').replace('```', '').strip()
     result = json.loads(text)
     result['classificadoPor'] = 'IA_VISUAL'
     return result
 
 
 def extract_pdf_data(pdf_text: str, document_name: str) -> dict:
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+    response = client.chat.completions.create(
+        model="grok-3-mini",
         max_tokens=2000,
         messages=[{
             "role": "user",
-            "content": f"Documento: {document_name}\n\nConteúdo:\n{pdf_text[:8000]}\n\n{EXTRACAO_PDF_PROMPT}"
-        }]
+            "content": f"Documento: {document_name}\n\nConteúdo:\n{pdf_text[:8000]}\n\n{EXTRACAO_PDF_PROMPT}",
+        }],
     )
 
-    text = response.content[0].text.replace('```json', '').replace('```', '').strip()
+    text = response.choices[0].message.content.replace('```json', '').replace('```', '').strip()
     return json.loads(text)
